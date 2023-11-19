@@ -35,7 +35,26 @@ async function run() {
         const menus = await menuCollection.find().toArray()
         res.send(menus)
     })
-
+// get single menu item
+app.get('/menu/:id', async(req, res)=>{
+  const id = req.params.id;
+  const filter = {_id:new ObjectId(id)};
+  const result = await menuCollection.findOne(filter);
+  res.send(result)
+})
+// update menu item
+app.patch('/update-item/:id', async(req,res)=>{
+  const id = req.params.id;
+  const item = req.body;
+  const filter = {_id: new ObjectId(id)}
+  const updateItem = {
+    $set:{
+          ...item
+    }
+  }
+  const result = await menuCollection.updateOne(filter, updateItem)
+  res.send(result)
+})
     //post users
     app.post('/user', async(req, res)=>{
     const user = req.body;
@@ -66,6 +85,19 @@ app.put('/user/:id',async(req,res)=>{
     }
   }
   const result = await userCollection.updateOne(filter,update,option)
+  res.send(result)
+})
+// post item
+app.post('/add-item', async(req,res)=>{
+  const item = req.body;
+  const result = await menuCollection.insertOne(item);
+  res.send(result)
+})
+// delete a item
+app.delete('/delete-item/:id', async(req,res)=>{
+  const id = req.params.id;
+  const filter = {_id: new ObjectId(id)};
+  const result = await menuCollection.deleteOne(filter);
   res.send(result)
 })
     await client.db("admin").command({ ping: 1 });
