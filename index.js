@@ -29,6 +29,7 @@ async function run() {
     const database = client.db("bistroBoss");
     const menuCollection = database.collection("menus");
     const userCollection = database.collection("users");
+    const cartCollection = database.collection("carts");
 
     // get menus
     app.get('/menus', async(req, res)=>{
@@ -99,6 +100,24 @@ app.delete('/delete-item/:id', async(req,res)=>{
   const filter = {_id: new ObjectId(id)};
   const result = await menuCollection.deleteOne(filter);
   res.send(result)
+})
+// add to cart
+app.post('/add-cart', async(req,res)=>{
+const item = req.body; 
+const result = await cartCollection.insertOne(item)
+res.send(result)
+})
+// get all cart
+app.get('/carts', async(req,res)=>{
+const result = await cartCollection.find().toArray()
+res.send(result)
+})
+// delete cart
+app.delete('/cart-delete/:id',async(req, res)=>{
+const id = req.params.id;
+const filter = {_id:new ObjectId(id)};
+const result = await cartCollection.deleteOne(filter);
+res.send(result)
 })
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
