@@ -59,6 +59,12 @@ app.patch('/update-item/:id', async(req,res)=>{
     //post users
     app.post('/user', async(req, res)=>{
     const user = req.body;
+    // is user Existing
+    const query = {email: user.email};
+    const existingUser = await userCollection.find(query);
+    if(existingUser){
+      return res.send({Message: "User already exist", insertedId: null})
+    } 
     const result = await userCollection.insertOne(user);
     res.send(result)
     }) 
