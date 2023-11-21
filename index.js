@@ -1,5 +1,6 @@
 const express = require('express');
 require('dotenv').config()
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 const app = express();
@@ -30,6 +31,23 @@ async function run() {
     const menuCollection = database.collection("menus");
     const userCollection = database.collection("users");
     const cartCollection = database.collection("carts");
+
+    // payment stripe
+  
+    app.post('/create-payment-intent', async(req, res)=>{
+    const {price} = req.body;
+    // console.log("Body",price);
+    const amount = parseInt(price*100)
+    // console.log('amount', amount);
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount,
+      currency: 'usd',
+      payment_method_types: ["card"],
+    })
+    res.send({
+      clientSecret: paymentIntent.client_secret
+    })
+    })
 
     // get menus
     app.get('/menus', async(req, res)=>{
