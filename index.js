@@ -31,6 +31,7 @@ async function run() {
     const menuCollection = database.collection("menus");
     const userCollection = database.collection("users");
     const cartCollection = database.collection("carts");
+    const paymentCollection = database.collection("payments");
 
     // payment stripe
   
@@ -142,6 +143,24 @@ const id = req.params.id;
 const filter = {_id:new ObjectId(id)};
 const result = await cartCollection.deleteOne(filter);
 res.send(result)
+})
+// post payment & delete from cart
+app.post('/payment',async(req, res)=>{
+  const payment = req.body;
+  const paymentResult = await paymentCollection.insertOne(payment);
+  const query = {_id:
+  {
+    $in: payment.cartId.map(id => new ObjectId(id))
+  }
+  }
+  const deleteResult = await cartCollection.deleteMany(query);
+  // console.log(query);
+  res.send({paymentResult, deleteResult})
+})
+// get payments
+app.get('/payments',async(req,res)=>{
+  const payments = await paymentCollection.find().toArray()
+  res.send(payments)
 })
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
